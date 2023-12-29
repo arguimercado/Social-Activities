@@ -1,6 +1,8 @@
+using Domain.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Persistence.Repositories;
 
 namespace Persistence;
 
@@ -13,6 +15,7 @@ public static class DependencyInjection
             opt.UseSqlServer(connectionString);
         });
         
+        services.AddScoped<IActivityRepository,ActivityRepository>();
         return services;
     }
 }

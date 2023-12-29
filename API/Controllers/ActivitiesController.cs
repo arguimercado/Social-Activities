@@ -1,30 +1,58 @@
 
+using Application.Features.Activities;
+using Application.Features.Activities.Dtos;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Persistence;
 
 namespace API.Controllers;
 
 public class ActivitiesController : BaseApiController
 {
-        private readonly ActivityContext _context;
    
-    public ActivitiesController(ActivityContext context)
+
+    public ActivitiesController()
     {
-            _context = context;
+        
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Activity>>>  Index() {
-        return await _context.Activites.ToListAsync();
+    public async Task<IActionResult> Index()
+    {
+       var response = await Mediator.Send(new List.Query());
+       return Ok(response);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Activity>> GetActivity(Guid id) {
-        return await _context.Activites.FindAsync(id);
+    public async Task<IActionResult> GetActivity(string id)
+    {
+        var response = await Mediator.Send(new Detail.Query(id));
+        return Ok(response);
     }
 
-    
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody]Activity activity) {
+        
+        await Mediator.Send(new Create.Command(activity));
+        
+        return Ok();
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Edit([FromRoute]string id,[FromBody]ActivityRequest activity) {
+        
+        await Mediator.Send(new Edit.Command(id,activity));
+        
+        return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete([FromRoute]string id) {
+        
+        await Mediator.Send(new Delete.Command(id));
+
+        return Ok();
+    }
+
+
 
 }
