@@ -9,6 +9,8 @@ namespace Application.Core.Mapping
         public MappingProfile()
         {
             CreateMap<ActivityRequest, Activity>();
+            CreateMap<Activity,ActivityResponse>()
+                .ForMember(a => a.Id,opt => opt.MapFrom(c => c.Id.ToString()));
         }
     }
 }
