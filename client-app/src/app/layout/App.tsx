@@ -12,6 +12,7 @@ function App() {
   const [viewActivity, setViewActivity] = useState<IActivity | undefined>();
   const [openForm, setOpenForm] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [submitting,setSubmitting] = useState<boolean>(false);
 
   function handleCreate() {
     setViewActivity(undefined);
@@ -33,6 +34,8 @@ function App() {
 
   function handleCreateOrUpdate(activity: IActivity) {
     
+    setSubmitting(true);
+    
     if (activity.id) {
       agent.Activities.update(activity).then(() => {
         setActivities([
@@ -41,19 +44,26 @@ function App() {
         ]);
         setOpenForm(false);
         setViewActivity(activity);
+        setSubmitting(false);
       });
-    } else {
+    } 
+    else {
       activity.id = uuid();
       agent.Activities.create(activity).then(() => {
         setActivities([...activities, activity]);
         setOpenForm(false);
         setViewActivity(activity);
+        setSubmitting(false);
       });
     }
   }
 
   function handleDelete(activity: IActivity) {
-    setActivities([...activities.filter((x) => x.id !== activity.id)]);
+
+    agent.Activities.delete(activity.id).then(() => {
+      setActivities([...activities.filter((x) => x.id !== activity.id)]);
+    })
+
   }
 
   useEffect(() => {
@@ -78,6 +88,7 @@ function App() {
           onEditClick={handleEdit}
           onViewClick={handleView}
           onDeleteClick={handleDelete}
+          isSubmit={submitting}
         />
       </Container>
     </>

@@ -8,7 +8,7 @@ import ActivityForm from "../form/ActivityForm";
 interface Props {
   activities: IActivity[],
   selectedActivity: IActivity | undefined,
-
+  isSubmit: boolean,
   isOpenForm: boolean,
   onViewClick: (activity: IActivity) => void,
   onEditClick: (id: string) => void,
@@ -17,7 +17,7 @@ interface Props {
   onDeleteClick: (activity: IActivity) => void
 }
 
-const ActivityDashboard = ({isOpenForm, activities,selectedActivity, onViewClick,onEditClick,onCancelClick,onSubmitClick,onDeleteClick }: Props) => {
+const ActivityDashboard = ({isOpenForm, activities,selectedActivity,isSubmit, onViewClick,onEditClick,onCancelClick,onSubmitClick,onDeleteClick }: Props) => {
 
 
   return (
@@ -30,7 +30,7 @@ const ActivityDashboard = ({isOpenForm, activities,selectedActivity, onViewClick
       </Grid.Column>
       <Grid.Column width={6}>
 				{(selectedActivity !== undefined && !isOpenForm) &&  <ActivityDetail activity={selectedActivity} onEditClick={onEditClick} />}
-				{isOpenForm  && <ActivityForm activity={selectedActivity} onCancelClick={onCancelClick} onSubmitClick={onSubmitClick}/>}
+				{isOpenForm  && <ActivityForm isSubmit={isSubmit} activity={selectedActivity} onCancelClick={onCancelClick} onSubmitClick={onSubmitClick} />}
       </Grid.Column>
     </Grid>
   );

@@ -4,11 +4,12 @@ import { ChangeEvent, useState } from "react";
 
 interface Props {
   activity: IActivity | undefined,
+  isSubmit: boolean,
   onCancelClick: () => void,
   onSubmitClick: (activity: IActivity) => void
 }
 
-const ActivityForm = ({ activity : selectedActivity,onCancelClick,onSubmitClick }: Props) => {
+const ActivityForm = ({ activity : selectedActivity,isSubmit,onCancelClick,onSubmitClick }: Props) => {
 
 
   const defaultState = selectedActivity ?? {
@@ -47,7 +48,7 @@ const ActivityForm = ({ activity : selectedActivity,onCancelClick,onSubmitClick 
         <Form.Input type='date' placeholder="Date" value={activity.date} name='date' onChange={handleInputChange}/>
         <Form.Input placeholder="City" value={activity.city} name='city' onChange={handleInputChange}/>
         <Form.Input placeholder="Venue" value={activity.venue} name='venue' onChange={handleInputChange}/>
-        <Button floated="right" positive type="submit" content="Submit"  />
+        <Button floated="right" loading={isSubmit} positive type="submit" content="Submit"  />
         <Button floated="right" positive type="button" content="Cancel" onClick={onCancelClick} />
       </Form>
     </Segment>
