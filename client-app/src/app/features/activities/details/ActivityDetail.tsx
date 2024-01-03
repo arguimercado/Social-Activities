@@ -1,30 +1,31 @@
 import { Button, Card, CardHeader, Image } from "semantic-ui-react";
-import { IActivity } from "../../../models/Activity";
+import { useStore } from "../../../stores/store";
+import { observer } from "mobx-react-lite";
 
-interface Props {
-  activity: IActivity | undefined,
-  onEditClick: (id: string) => void,
-}
 
-const ActivityDetail = ({ activity,onEditClick }: Props) => {
+
+const ActivityDetail = () => {
+
+  const {activityStore : {selectedActivity,editActivity}} = useStore();
+  
   return (
     <Card fluid={true}>
       <Image
-        src={`/assets/categoryImages/${activity?.category}.jpg`}
+        src={`/assets/categoryImages/${selectedActivity?.category}.jpg`}
         wrapped
         ui={false}
       />
       <Card.Content>
-        <CardHeader>{activity?.title ?? ""}</CardHeader>
-        <Card.Meta>{activity?.date}</Card.Meta>
+        <CardHeader>{selectedActivity?.title ?? ""}</CardHeader>
+        <Card.Meta>{selectedActivity?.date}</Card.Meta>
         <Card.Description>
-						<div>{activity?.description}</div>
-						<div>{activity?.venue}, {activity?.city}</div>
+						<div>{selectedActivity?.description}</div>
+						<div>{selectedActivity?.venue}, {selectedActivity?.city}</div>
 				</Card.Description>
       </Card.Content>
 				<Card.Content extra>	
 					<div className="ui two buttons">
-						<Button basic color='green' onClick={() => onEditClick(activity?.id ?? "")}>Edit</Button>
+						<Button basic color='green' onClick={editActivity}>Edit</Button>
 						<Button basic color='red'>View</Button>
 					</div>
 
@@ -33,4 +34,4 @@ const ActivityDetail = ({ activity,onEditClick }: Props) => {
   );
 };
 
-export default ActivityDetail;
+export default observer(ActivityDetail);

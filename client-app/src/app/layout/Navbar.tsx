@@ -5,6 +5,8 @@ interface Props {
 }
 
 const Navbar = ({onCreate} : Props) => {
+  
+
   return (
     <Menu inverted fixed="top">
         <Container>
