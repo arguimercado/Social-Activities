@@ -1,28 +1,35 @@
 using Application.Features.Activities.Dtos;
 using AutoMapper;
 using Domain.Contracts;
+using FluentResults;
 using MediatR;
 
-namespace Application.Features.Activities
+namespace Application.Features.Activities;
+
+public static class Detail
 {
-    public static class Detail
+    public record Query(string Id) : IRequest<Result<ActivityResponse>>;
+
+    public class QueryHandler : IRequestHandler<Query, Result<ActivityResponse>>
     {
-        public record Query(string Id) : IRequest<ActivityResponse>;
+        private readonly IActivityRepository _repository;
+        private readonly IMapper _mapper;
 
-        public class QueryHandler : IRequestHandler<Query, ActivityResponse>
+        public QueryHandler(IActivityRepository repository,IMapper mapper)
         {
-            private readonly IActivityRepository _repository;
-            private readonly IMapper _mapper;
+            _repository = repository;
+            _mapper = mapper;
+        }
+        public async Task<Result<ActivityResponse>> Handle(Query request, CancellationToken cancellationToken)
+        {
+            var isValid = Guid.TryParse(request.Id,out Guid result);
+            if(!isValid) {
+                return null;
+            }
+            var activity = await _repository.GetById(request.Id);
+            return Result.Ok(_mapper.Map<ActivityResponse>(activity));
 
-            public QueryHandler(IActivityRepository repository,IMapper mapper)
-            {
-                _repository = repository;
-                _mapper = mapper;
-            }
-            public async Task<ActivityResponse> Handle(Query request, CancellationToken cancellationToken)
-            {
-                return _mapper.Map<ActivityResponse>(await _repository.GetById(request.Id));
-            }
+            
         }
     }
 }

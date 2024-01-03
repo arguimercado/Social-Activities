@@ -8,7 +8,8 @@ namespace Application.Core.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<ActivityRequest, Activity>();
+            CreateMap<ActivityRequest, Activity>()
+                .ForMember(a => a.Id, opt => opt.MapFrom(c => Guid.Parse(c.Id)));
             CreateMap<Activity,ActivityResponse>()
                 .ForMember(a => a.Id,opt => opt.MapFrom(c => c.Id.ToString()));
         }

@@ -2,6 +2,7 @@ using Application.Features.Activities.Dtos;
 using AutoMapper;
 using Domain;
 using Domain.Contracts;
+using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -9,9 +10,9 @@ namespace Application.Features.Activities;
 
 public static class List
 {
-    public record Query : IRequest<IEnumerable<ActivityResponse>>;
+    public record Query : IRequest<Result<IEnumerable<ActivityResponse>>>;
 
-    public class QueryHandler : IRequestHandler<Query, IEnumerable<ActivityResponse>>
+    public class QueryHandler : IRequestHandler<Query, Result<IEnumerable<ActivityResponse>>>
     {
        
         private readonly IActivityRepository _repository;
@@ -26,11 +27,17 @@ public static class List
             _mapper = mapper;
         }
         
-        public async Task<IEnumerable<ActivityResponse>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<ActivityResponse>>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var response = await _repository.GetAll();
-            
-            return _mapper.Map<IEnumerable<ActivityResponse>>(response.ToList());
+            try {
+                var response = await _repository.GetAll();
+                
+                return Result.Ok(_mapper.Map<IEnumerable<ActivityResponse>>(response.ToList()));
+
+            }
+            catch(Exception ex) {
+                return Result.Fail(ex.Message);
+            }
         }
     }
 }

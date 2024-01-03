@@ -1,13 +1,14 @@
 using Domain.Contracts;
+using FluentResults;
 using MediatR;
 
 namespace Application.Features.Activities;
 
 public class Delete
 {
-    public record Command(string Id) : IRequest;
+    public record Command(string Id) : IRequest<Result<Unit>>;
 
-    public class Handler : IRequestHandler<Command>
+    public class Handler : IRequestHandler<Command,Result<Unit>>
     {
         private readonly IActivityRepository _repository;
 
@@ -15,11 +16,19 @@ public class Delete
         {
             _repository = repository;
         }
-        public async Task Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var activity = await _repository.GetById(request.Id);
+            try {
+                var activity = await _repository.GetById(request.Id);
+                if(activity is null)
+                    return null;
 
-            await _repository.Delete(activity);
+                await _repository.Delete(activity);
+                return Result.Ok(Unit.Value);
+            }
+            catch(Exception ex) {
+                return Result.Fail(ex.Message);
+            }
         }
     }
 }
