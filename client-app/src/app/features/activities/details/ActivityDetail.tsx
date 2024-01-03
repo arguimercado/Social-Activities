@@ -1,13 +1,23 @@
 import { Button, Card, CardHeader, Image } from "semantic-ui-react";
 import { useStore } from "../../../stores/store";
 import { observer } from "mobx-react-lite";
+import { Link, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import BusyLoader from "../../../components/loading/BusyLoader";
 
 
 
 const ActivityDetail = () => {
 
-  const {activityStore : {selectedActivity,editActivity}} = useStore();
-  
+  const {activityStore : {selectedActivity,loadActivity,loadingInitial}} = useStore();
+  const {id} = useParams();
+
+  useEffect(() => {
+    if(id) loadActivity(id)
+  },[id])
+
+  if (loadingInitial || !selectedActivity) return <BusyLoader inverted={true} content="Loading" />;
+
   return (
     <Card fluid={true}>
       <Image
@@ -25,7 +35,7 @@ const ActivityDetail = () => {
       </Card.Content>
 				<Card.Content extra>	
 					<div className="ui two buttons">
-						<Button basic color='green' onClick={editActivity}>Edit</Button>
+						<Button basic color='green' as={Link} to={`/edit/${selectedActivity?.id}`} >Edit</Button>
 						<Button basic color='red'>View</Button>
 					</div>
 
