@@ -1,12 +1,18 @@
-import { Button, Form, Segment } from "semantic-ui-react";
+import { Button, Header, Segment } from "semantic-ui-react";
 import { IActivity } from "../../../models/Activity";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "../../../stores/store";
 import { observer } from "mobx-react-lite";
 import { useNavigate, useParams } from "react-router";
-import {v4 as uuid} from 'uuid';
 import BusyLoader from "../../../components/loading/BusyLoader";
 import { Link } from "react-router-dom";
+import { Formik,Form } from "formik";
+import * as Yup from 'yup';
+import { CstTextInput,CstTextArea } from "../../../components";
+import CstDropdown from "../../../components/form/CstDropdown";
+import { categoryOptions } from "../../../components/options/categoryOptions";
+import CstDateInput from "../../../components/form/CstDateInput";
+
 
 
 const ActivityForm = () => {
@@ -20,15 +26,24 @@ const ActivityForm = () => {
     title: '',
     category: '',
     description: '',
-    date: '',
+    date: null,
     city: '',
     venue: ''
   });
 
+  const validationSchema = Yup.object({
+    title: Yup.string().required('The activity title is required'),
+    description: Yup.string().required('The description is required'),
+    category: Yup.string().required(),
+    date: Yup.string().required('The date is required'),
+    city: Yup.string().required(),
+    venue: Yup.string().required(),
+  })
+
   const {activityStore: {loadingInitial,loadActivity,saveActivity,updateActivity,submitLoading}} = useStore();
 
   useEffect(() => {
-    console.log(id);
+   
     if(id) 
       loadActivity(id).then(activity => setActivity(activity!));
     
@@ -38,42 +53,52 @@ const ActivityForm = () => {
   if (loadingInitial) return <BusyLoader inverted={true} content="Loading" />;
 
 
-  function handleSubmit() {
+  function handleFormSubmit(activity: IActivity) {
     if(activity.id) {
       updateActivity(activity).then((response: IActivity | undefined) => navigate(`/activities/${response?.id}`));
     }
     else {
-      activity.id = uuid(); 
       saveActivity(activity).then((response: IActivity | undefined) => navigate(`/activities/${response?.id}`));
     }
   }
 
   
-  
-  function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
-    const {name,value} = event.target;
-    setActivity((prev) => {
-      return ({
-        ...prev,
-        [name]: value
-      });
-    });
-    
-  }
 
 
   return (
     <Segment clearing>
-      <Form onSubmit={handleSubmit}>
-        <Form.Input  placeholder="Title" value={activity.title} name='title' onChange={handleInputChange}/>
-        <Form.Input placeholder="Description" value={activity.description} name='description' onChange={handleInputChange}/>
-        <Form.Input placeholder="Category" value={activity.category} name='category' onChange={handleInputChange}/>
-        <Form.Input type='date' placeholder="Date" value={activity.date} name='date' onChange={handleInputChange}/>
-        <Form.Input placeholder="City" value={activity.city} name='city' onChange={handleInputChange}/>
-        <Form.Input placeholder="Venue" value={activity.venue} name='venue' onChange={handleInputChange}/>
-        <Button floated="right" loading={submitLoading} positive type="submit" content="Submit"  />
-        <Button floated="right" positive type="button" content="Cancel" as={Link} to='/activities' />
-      </Form>
+      <Header content='Activity Details' sub color='teal' />
+    <Formik 
+      validationSchema={validationSchema}
+      enableReinitialize 
+      initialValues={activity} 
+      onSubmit={values => handleFormSubmit(values)}>
+      {({handleSubmit,isValid,isSubmitting,dirty}) => (
+        <Form className='ui form' onSubmit={handleSubmit}>
+          <CstTextInput name='title' placeholder="Title" />
+          <CstTextArea placeholder="Description"  name='description' />
+          <CstDropdown options={categoryOptions} placeholder="Category"  name='category'/>
+          <CstDateInput  
+              placeholderText="Date" 
+              name='date'
+              showTimeSelect
+              timeCaption="time"
+              dateFormat="MMMM d, yyyy h:mm aa" 
+              
+            />
+          <Header content='Location Details' sub color='teal' />
+          <CstTextInput placeholder="City"  name='city' />
+          <CstTextInput placeholder="Venue"  name='venue' />
+          <Button
+              disabled={isSubmitting || !dirty || !isValid} 
+              floated="right" 
+              loading={submitLoading} 
+              positive 
+              type="submit" content="Submit"  />
+          <Button floated="right" positive type="button" content="Cancel" as={Link} to='/activities' />
+        </Form>
+      )}
+    </Formik>
     </Segment>
   );
 };
