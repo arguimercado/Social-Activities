@@ -1,11 +1,12 @@
 
 using Application.Features.Activities;
 using Application.Features.Activities.Dtos;
-using Domain;
+using Application.Features.Attendees;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
+
 
 public class ActivitiesController : BaseApiController
 {
@@ -40,6 +41,7 @@ public class ActivitiesController : BaseApiController
         return HandleResult(response);
     }
 
+    [Authorize(Policy = "IsActivityHost")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Edit([FromRoute] string id, [FromBody] ActivityRequest activity)
     {
@@ -49,6 +51,24 @@ public class ActivitiesController : BaseApiController
         return HandleResult(response);
     }
 
+    [HttpPost("{id}/attend")]
+    public async Task<IActionResult> Attend([FromRoute] string id)
+    {
+
+        var response = await Mediator.Send(new UpdateAttendance.Command(id));
+
+        return HandleResult(response);
+    }
+
+    [Authorize(Policy = "IsActivityHost")]
+    [HttpDelete("{id}/remove/{username}")]
+    public async Task<IActionResult> RemoveAttendee([FromRoute]string id,[FromRoute]string username) {
+
+        var response = await Mediator.Send(new RemoveAttendee.Command(id,username));
+        return HandleResult(response);
+    }
+
+    [Authorize(Policy = "IsActivityHost")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] string id)
     {

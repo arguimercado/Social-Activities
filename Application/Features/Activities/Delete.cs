@@ -11,19 +11,24 @@ public class Delete
     public class Handler : IRequestHandler<Command,Result<Unit>>
     {
         private readonly IActivityRepository _repository;
+        private readonly IUnitWork _unitWork;
 
-        public Handler(IActivityRepository repository)
+        public Handler(IActivityRepository repository,IUnitWork unitWork)
         {
             _repository = repository;
+            _unitWork = unitWork;
         }
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
             try {
+                
                 var activity = await _repository.GetById(request.Id);
                 if(activity is null)
                     return null;
 
-                await _repository.Delete(activity);
+                _repository.Delete(activity);
+                await _unitWork.CommitSaveAsync();
+
                 return Result.Ok(Unit.Value);
             }
             catch(Exception ex) {

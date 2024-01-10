@@ -26,7 +26,7 @@ public static class Detail
             if(!isValid) {
                 return null;
             }
-            var activity = await _repository.GetById(request.Id);
+            var activity = await _repository.GetActivityWithAttendees(request.Id);
             return Result.Ok(_mapper.Map<ActivityResponse>(activity));
 
             

@@ -1,11 +1,8 @@
 namespace API.Dto;
 
-public class UserDto
-{
-    public string DisplayName { get; set; }
+public class UserDto {
+    public string Displayname { get; set; }
     public string Token { get; set; }
-
     public string Image { get; set; }
-
-    public string UserName { get; set; }
+    public string Username { get; set; }
 }

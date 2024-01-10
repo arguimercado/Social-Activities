@@ -43,16 +43,16 @@ public class AccountController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<ActionResult<UserDto>> Register(RegisterDto register)
-    {
-        if(await _userManager.Users.AnyAsync(x => x.UserName == register.UserName))
-        {
+    public async Task<ActionResult<UserDto>> Register(RegisterDto register) {
+
+        if(await _userManager
+                    .Users
+                    .AnyAsync(x => x.UserName == register.UserName)) {
             
-           return BadRequest("Username is already exist");
+            return BadRequest("Username is already exist");
         }
 
-        if(await _userManager.Users.AnyAsync(x => x.Email == register.Email))
-        {
+        if(await _userManager.Users.AnyAsync(x => x.Email == register.Email)) {
             return BadRequest("Email is already taken");
         }
 
@@ -64,8 +64,7 @@ public class AccountController : ControllerBase
 
         var result = await _userManager.CreateAsync(user,register.Password);
 
-        if(result.Succeeded)
-        {
+        if(result.Succeeded) {
             return CreateUserDto(user);
         }
 
@@ -76,7 +75,8 @@ public class AccountController : ControllerBase
     [HttpGet()]
     public async Task<ActionResult<UserDto>> GetCurrentUser()
     {
-        var user = await  _userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+        var user = await  _userManager
+                            .FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
 
         return CreateUserDto(user);
     }
@@ -85,10 +85,10 @@ public class AccountController : ControllerBase
     {
         return new UserDto
         {
-            DisplayName = user.DisplayName,
+            Displayname = user.DisplayName,
             Image = null,
             Token = _tokenService.CreatToken(user),
-            UserName = user.UserName
+            Username = user.UserName
         };
     }
 }

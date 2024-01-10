@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Application.Features.Activities.Dtos;
 using AutoMapper;
 using Domain;
@@ -18,22 +19,32 @@ public static class List
         private readonly IActivityRepository _repository;
         private readonly ILogger<List.Query> _logger;
         private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepository;
 
-        public QueryHandler(IActivityRepository repository,ILogger<List.Query> logger,IMapper mapper)
+        private readonly IUserAccessor _userAccessor;
+
+        public QueryHandler(
+            IActivityRepository repository,
+            ILogger<List.Query> logger,
+            IMapper mapper,
+            IUserAccessor userAccessor,
+            IUserRepository userRepository)
         {
             
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
+            _userAccessor = userAccessor;
+            _userRepository = userRepository;
         }
         
         public async Task<Result<IEnumerable<ActivityResponse>>> Handle(Query request, CancellationToken cancellationToken)
         {
             try {
-                var response = await _repository.GetAll();
+                var data = await _repository.GetAll();
+                var responses = _mapper.Map<IEnumerable<ActivityResponse>>(data);
                 
-                return Result.Ok(_mapper.Map<IEnumerable<ActivityResponse>>(response.ToList()));
-
+                return Result.Ok<IEnumerable<ActivityResponse>>(responses);
             }
             catch(Exception ex) {
                 return Result.Fail(ex.Message);

@@ -1,4 +1,4 @@
-using Domain;
+using Domain.Activities;
 using Domain.Contracts;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,31 +13,52 @@ public class ActivityRepository : IActivityRepository
         _context = context;
     }
 
-    public async Task Create(Activity activity)
+    public void Create(Activity activity)
     {
         _context.Activites.Add(activity);
-        await _context.SaveChangesAsync();
+       
     }
 
-    public async Task Delete(Activity activity)
+    public void Delete(Activity activity)
     {
         _context.Activites.Remove(activity);
-        await _context.SaveChangesAsync();
+       
     }
+
+   
 
     public async Task<IEnumerable<Activity>> GetAll(CancellationToken cancellationToken = default)
     {
-        return await _context.Activites.ToListAsync();
+        return await _context.Activites
+                        .AsNoTracking()
+                        .Include(x => x.Attendees)
+                        .ThenInclude(x => x.AppUser)
+                        .ToListAsync();
     }
+
+     public async Task<Activity> GetActivityWithAttendees(string id,bool trackChanges = false)
+    {
+
+        var query = trackChanges ? _context.Activites.AsTracking() : _context.Activites.AsNoTracking();
+
+        return await query
+                        .Include(x => x.Attendees)
+                        .ThenInclude(x => x.AppUser)
+                        .Where(x => x.Id == Guid.Parse(id))
+                        .FirstOrDefaultAsync();
+    }
+
+    
 
     public async Task<Activity> GetById(string id)
     {
-       return await _context.Activites.FindAsync(Guid.Parse(id));
+       return await _context.Activites
+                        .FindAsync(Guid.Parse(id));
     }
 
-    public async Task Update(Activity activity)
+    public void Update(Activity activity)
     {
         _context.Activites.Update(activity);
-        await _context.SaveChangesAsync();
+       
     }
 }

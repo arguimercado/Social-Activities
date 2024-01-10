@@ -6,16 +6,19 @@ import ActivityDetail from '../features/activities/details/ActivityDetail';
 import TestErrors from '../features/errors/TestErrors';
 import NotFound from '../features/errors/NotFound';
 import ServerError from '../features/errors/ServerError';
+import Profile from '../features/profiles/Profile';
 
 export const routes: RouteObject[] =  [
     {
         path: '/',
         element: <App />,
         children: [
+            
             {path: '/activities', element: <ActivityDashboard/>},
             {path: '/activities/:id',element: <ActivityDetail />},
             {path: '/create' , element: <ActivityForm key='create'/>},
             {path: '/edit/:id', element: <ActivityForm key='manage' />},
+            {path: '/profile/:id', element: <Profile />},
             {path: '/errors', element: <TestErrors />},
             {path: '/not-found', element: <NotFound />},
             {path: '/server-error', element: <ServerError />},

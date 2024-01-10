@@ -1,7 +1,7 @@
 
 using Application.Features.Activities.Dtos;
 using AutoMapper;
-using Domain;
+using Domain.Activities;
 using Domain.Contracts;
 using FluentResults;
 using FluentValidation;
@@ -25,11 +25,13 @@ public static class Edit
     {
         private readonly IActivityRepository _repository;
         private readonly IMapper _mapper;
+        private readonly IUnitWork _unitWork;
 
-        public Handler(IActivityRepository repository,IMapper mapper)
+        public Handler(IActivityRepository repository,IMapper mapper,IUnitWork unitWork)
         {
             _repository = repository;
             _mapper = mapper;
+            _unitWork = unitWork;
         }
 
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -37,8 +39,15 @@ public static class Edit
             
             var activity = await _repository.GetById(request.Id);
             
-            _mapper.Map<ActivityRequest,Activity>(request.Activity,activity);
-            await _repository.Update(activity);
+            activity.UpdateActivity(request.Activity.Title,
+                                    request.Activity.Date,
+                                    request.Activity.Description,
+                                    request.Activity.Category,
+                                    request.Activity.City,
+                                    request.Activity.Venue);
+            
+            _repository.Update(activity);
+            await _unitWork.CommitSaveAsync();
             return Result.Ok(Unit.Value);
         }
     }
