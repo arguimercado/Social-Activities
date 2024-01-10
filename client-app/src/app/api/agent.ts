@@ -29,7 +29,6 @@ axios.interceptors.response.use(async response => {
     const {data,status,config} = error.response! as AxiosResponse;
     switch(status) {
         case 400:
-            
             if(config.method === 'get' && Object.prototype.hasOwnProperty.call(data.errors,'id')) {
                 router.navigate('/not-found');
             }
@@ -77,7 +76,8 @@ const Activities = {
     details: (id: string) => request.get<IActivity>(`/activities/${id}`),
     create: (activity : IActivity) => request.post<void>('/activities',activity),
     update: (activity: IActivity) => request.put<void>(`/activities/${activity.id}`,activity),
-    delete: (id: string) => request.del<void>(`/activities/${id}`)
+    delete: (id: string) => request.del<void>(`/activities/${id}`),
+    attend: (id: string) => request.post<void>(`/activities/${id}/attend`,{}),
 }
 
 const Account = {

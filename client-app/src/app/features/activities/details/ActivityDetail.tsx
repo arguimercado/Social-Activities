@@ -13,24 +13,29 @@ import SidebarDetail from "./SidebarDetail";
 
 const ActivityDetail = () => {
 
-  const {activityStore : {selectedActivity,loadActivity,loadingInitial}} = useStore();
+  const {activityStore : {selectedActivity, loadActivity,loadingInitial}} = useStore();
+  
   const {id} = useParams();
 
   useEffect(() => {
     if(id) loadActivity(id)
-  },[id])
+  },[id,loadActivity])
+
+  function handleRefresh(id: string) {
+    loadActivity(id,true);
+  }
 
   if (loadingInitial || !selectedActivity) return <BusyLoader inverted={true} content="Loading" />;
 
   return (
    <Grid>
     <Grid.Column width={10}>
-      <HeaderDetail activity={selectedActivity}/>
+      <HeaderDetail activity={selectedActivity} onRefresh={handleRefresh}  />
       <InfoDetail activity={selectedActivity} />
       <ChatDetail />
     </Grid.Column>
     <Grid.Column width={6}>
-      <SidebarDetail />
+      <SidebarDetail attendees={selectedActivity.attendees!}/>
     </Grid.Column>
    </Grid>
   );

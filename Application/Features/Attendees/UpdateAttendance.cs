@@ -17,8 +17,8 @@ public static class UpdateAttendance
 
         public Handler(
             IActivityRepository activityRepository,
-            IUserRepository userRepository, 
-            IUserAccessor userAccessor, 
+            IUserRepository userRepository,
+            IUserAccessor userAccessor,
             IUnitWork unitWork)
         {
             _userRepository = userRepository;
@@ -26,31 +26,28 @@ public static class UpdateAttendance
             _userAccessor = userAccessor;
             _unitWork = unitWork;
         }
-        
+
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
-            try {
-                var activity = await _activityRepository.GetActivityWithAttendees(request.Id);
-                if (activity == null) return null;
 
-                var user = await _userRepository.FindByUsername(_userAccessor.GetUsername());
+            var activity = await _activityRepository.GetActivityWithAttendees(request.Id, true);
+            if (activity == null) return null;
 
-                if (user == null)
-                    return null;
+            var user = await _userRepository.FindByUsername(_userAccessor.GetUsername());
 
-                activity.UpdateAttendance(user);
-                _activityRepository.Update(activity);
-                var result = await _unitWork.CommitSaveAsync();
+            if (user == null)
+                return null;
 
-                if (!result)
-                    return Result.Fail<Unit>("Problem updating attendance");
+            activity.UpdateAttendance(user);
+            _activityRepository.Update(activity);
+            var result = await _unitWork.CommitSaveAsync();
 
-                return Result.Ok(Unit.Value);
+            if (!result)
+                return Result.Fail<Unit>("Problem updating attendance");
 
-            }
-            catch(Exception ex) {
-                return Result.Fail(ex.Message);
-            }
+            return Result.Ok(Unit.Value);
+
+
         }
     }
 }

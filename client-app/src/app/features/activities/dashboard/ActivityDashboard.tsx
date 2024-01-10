@@ -1,12 +1,11 @@
 import { Grid } from "semantic-ui-react";
-import ActivityList from "./ActivityList";
+import ActivityList from "./components/ActivityList";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../../stores/store";
 import { useEffect } from "react";
 import BusyLoader from "../../../components/loading/BusyLoader";
-import ActivityFilters from "./ActivityFilters";
-import ActivityForm from "../form/ActivityForm";
-import ActivityNew from "./ActivityNew";
+import ActivityFilters from "./components/ActivityFilters";
+import ActivityNew from "./components/ActivityNew";
 
 
 

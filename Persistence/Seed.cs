@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Domain.Activities;
 using Domain.Users;
 using Microsoft.AspNetCore.Identity;
@@ -31,6 +27,8 @@ public class Seed
             users = [.. userManager.Users];
         }
 
+        if (context.Activites.Any()) return;
+        
         var activities = new List<Activity>
             {
                 Activity.CreateWithAttendee("Past Activity 1",

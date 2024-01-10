@@ -3,6 +3,7 @@ import { IActivity } from '../models/Activity';
 import agent from '../api/agent';
 import { v4 as uuid } from "uuid";
 import { format } from 'date-fns';
+import { store } from './store';
 
 export default class ActivityStore {
 
@@ -35,12 +36,15 @@ export default class ActivityStore {
         )
     }
 
+    get guestActivities() {
+        return this.selectedActivity?.attendees.filter(a => !a.isHost);
+    }
 
-    loadActivity = async (id: string) => {
+
+    loadActivity = async (id: string,force?: boolean) => {
 
         let activity = this.activityRegistry.get(id);
-        console.log(activity);
-        if (activity) {
+        if (activity && !force) {
             this.selectedActivity = activity;
             return activity;
         }
@@ -52,19 +56,24 @@ export default class ActivityStore {
                 runInAction(() => {
                     this.selectedActivity = activity ?? null;
                     this.loadingInitial = false;
+                    
                 })
                 return activity;
             } catch (error) {
                 console.log(error);
                 this.loadingInitial = false;
             }
-
-
         }
     }
 
     private setActivity = (activity: IActivity) => {
+        
+        const user = store.userStore.user;
+
         activity.date = new Date(activity.date!)
+        activity.host = activity.attendees.find(x => x.isHost);
+        activity.isGoing = activity.attendees.some(x => x.username === user?.username);
+        
     }
 
 
@@ -120,7 +129,6 @@ export default class ActivityStore {
         catch (error) {
             this.submitLoading = false;
         }
-
     }
 
     deleteActivity = async (id: string) => {
@@ -132,9 +140,19 @@ export default class ActivityStore {
         })
     }
 
-
-
-
-
+    updateAttendance = async (activityId: string) => {
+        this.loading = true;
+        try {
+            await agent.Activities.attend(activityId);
+        } 
+        catch (error) {
+            console.log(error);
+        } 
+        finally {
+            runInAction(() => {
+                this.loading = false;
+            })
+        }
+    }
 
 }

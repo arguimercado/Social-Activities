@@ -1,9 +1,9 @@
-import { IActivity } from "../../../models/Activity";
+import { IActivity } from "../../../../models/Activity";
 import { Header } from "semantic-ui-react";
-import { useStore } from "../../../stores/store";
+import { useStore } from "../../../../stores/store";
 import { observer } from "mobx-react-lite";
 import { Fragment } from "react";
-import ActivityItem from "./ActivityItem";
+import ActivityListItem from "./ActivityListItem";
 
 const ActivityList = () => {
   const {
@@ -18,7 +18,7 @@ const ActivityList = () => {
             {group}
           </Header>
             {activities.map((activity: IActivity, index: number) => (
-              <ActivityItem activity={activity} key={index} />
+              <ActivityListItem activity={activity} key={index} />
             ))}
          
         </Fragment>

@@ -1,60 +1,63 @@
-import { Link } from "react-router-dom"
-import { Item, Label, List, Segment,Image } from "semantic-ui-react"
+import { observer } from "mobx-react-lite";
+import { Link } from "react-router-dom";
+import { Label, List, Segment, Image, Item } from "semantic-ui-react";
+import { IProfile } from "../../../models/IProfile";
 
-const SidebarDetail = () => {
-  return (
-    <>
-    <Segment
-        textAlign='center'
-        style={{ border: 'none' }}
-        attached='top'
-        secondary
-        inverted
-        color='teal'
-    >
-        3 People Going
-    </Segment>
-    <Segment attached>
-        <List relaxed divided>
-            <Item style={{ position: 'relative' }}>
-                <Label
-                    style={{ position: 'absolute' }}
-                    color='orange'
-                    ribbon='right'
-                >
-                    Host
-                </Label>
-                <Image size='tiny' src={'/assets/user.png'} />
-                <Item.Content verticalAlign='middle'>
-                    <Item.Header as='h3'>
-                        <Link to={`#`}>Bob</Link>
-                    </Item.Header>
-                    <Item.Extra style={{ color: 'orange' }}>Following</Item.Extra>
-                </Item.Content>
-            </Item>
-
-            <Item style={{ position: 'relative' }}>
-                <Image size='tiny' src={'/assets/user.png'} />
-                <Item.Content verticalAlign='middle'>
-                    <Item.Header as='h3'>
-                        <Link to={`#`}>Tom</Link>
-                    </Item.Header>
-                    <Item.Extra style={{ color: 'orange' }}>Following</Item.Extra>
-                </Item.Content>
-            </Item>
-
-            <Item style={{ position: 'relative' }}>
-                <Image size='tiny' src={'/assets/user.png'} />
-                <Item.Content verticalAlign='middle'>
-                    <Item.Header as='h3'>
-                        <Link to={`#`}>Sally</Link>
-                    </Item.Header>
-                </Item.Content>
-            </Item>
-        </List>
-    </Segment>
-</>
-  )
+interface Props {
+  attendees: IProfile[];
+ 
 }
 
-export default SidebarDetail
+const SidebarDetail = ({ attendees }: Props) => {
+  return (
+    <>
+      <Segment
+        textAlign="center"
+        style={{ border: "none" }}
+        attached="top"
+        secondary
+        inverted
+        color="teal"
+      >
+        {attendees.length === 0
+          ? "No one is attending yet"
+          : attendees.length === 1
+          ? "1 Person Going"
+          : `${attendees.length} People Going`}
+      </Segment>
+      <Segment attached>
+        <List relaxed divided>
+          {attendees.map((attendee) => (
+            <Item key={attendee.username} style={{ position: "relative" }}>
+                {attendee.isHost && (
+                <Label
+                  style={{ position: "absolute" }}
+                  color="orange"
+                  ribbon="right">
+                    Host
+                  </Label>
+                )}
+
+                <Image
+                size="mini"
+                circular
+                src={attendee.image || "/assets/user.png"}
+                />
+                <Item.Content>
+                <Item.Header as="h3">
+                  <Link to={`/profiles/${attendee.username}`}>
+                    {attendee.displayname}
+                  </Link>
+                </Item.Header>
+                <Item.Extra>Following</Item.Extra>
+                </Item.Content>
+            </Item>
+           
+          ))}
+        </List>
+      </Segment>
+    </>
+  );
+};
+
+export default observer(SidebarDetail);

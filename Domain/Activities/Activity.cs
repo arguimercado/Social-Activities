@@ -115,7 +115,7 @@ public class Activity
                     this.RestoreActivity();
             }
             else {
-                attendance.CancelActivity();
+                this.Attendees.Remove(attendance);
             }
         }
     }
@@ -123,8 +123,8 @@ public class Activity
     public void AddAttendee(AppUser user,bool isHost)
     {
         var attendee = new ActivityAttendee {
-            AppUser = user,
-            Activity = this,
+            AppUserId = user.Id,
+            ActivityId = this.Id,
             IsHost = isHost,
             Cancel = new CancelationValueObject(false),
         };
@@ -132,8 +132,8 @@ public class Activity
         Attendees.Add(attendee);
     }
 
-    public void UpdateActivity(string title, DateTime date, string description, string category, string city, string venue)
-    {
+    public void UpdateActivity(string title, DateTime date, string description, string category, string city, string venue) 
+    {   
         Title = title;
         Date = date;
         Description = description;
