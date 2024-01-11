@@ -8,9 +8,9 @@ public class ActivityRepository : IActivityRepository
 {
     private readonly ActivityContext _context;
 
-    public ActivityRepository(ActivityContext context)
+    public ActivityRepository(IActivityContext context)
     {
-        _context = context;
+        _context = (ActivityContext)context;
     }
 
     public void Create(Activity activity)
@@ -32,7 +32,8 @@ public class ActivityRepository : IActivityRepository
         return await _context.Activites
                         .AsNoTracking()
                         .Include(x => x.Attendees)
-                        .ThenInclude(x => x.AppUser)
+                            .ThenInclude(x => x.AppUser)
+                                .ThenInclude(x => x.Photos)
                         .ToListAsync();
     }
 

@@ -1,6 +1,5 @@
 
 using Application.Features.Activities.Dtos;
-using Domain;
 using FluentValidation;
 
 namespace Application.Features.Activities;

@@ -28,7 +28,10 @@ const ActivityForm = () => {
     description: '',
     date: null,
     city: '',
-    venue: ''
+    venue: '',
+    attendees: [],
+    isCancelled: false,
+    isGoing: false,
   });
 
   const validationSchema = Yup.object({

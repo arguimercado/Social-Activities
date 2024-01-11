@@ -1,10 +1,4 @@
-using System.Runtime.InteropServices;
 using Application.Features.Activities.Dtos;
-using AutoMapper;
-using Domain;
-using Domain.Contracts;
-using FluentResults;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Activities;

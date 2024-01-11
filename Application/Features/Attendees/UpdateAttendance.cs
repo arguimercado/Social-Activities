@@ -1,7 +1,3 @@
-using Domain.Contracts;
-using FluentResults;
-using MediatR;
-
 namespace Application.Features.Attendees;
 
 public static class UpdateAttendance

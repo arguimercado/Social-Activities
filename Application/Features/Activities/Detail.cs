@@ -1,8 +1,4 @@
 using Application.Features.Activities.Dtos;
-using AutoMapper;
-using Domain.Contracts;
-using FluentResults;
-using MediatR;
 
 namespace Application.Features.Activities;
 

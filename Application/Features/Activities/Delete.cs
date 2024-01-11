@@ -1,6 +1,3 @@
-using Domain.Contracts;
-using FluentResults;
-using MediatR;
 
 namespace Application.Features.Activities;
 

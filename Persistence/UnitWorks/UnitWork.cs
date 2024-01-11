@@ -6,10 +6,12 @@ namespace Persistence.UnitWorks
     {
         private readonly ActivityContext _context;
 
-        public UnitWork(ActivityContext context)
+        public UnitWork(IActivityContext context)
         {
-            _context = context;
+            _context = (ActivityContext)context;
         }
+
+        public IActivityContext ActivityContext => _context;
 
         public async Task<bool> CommitSaveAsync()
         {

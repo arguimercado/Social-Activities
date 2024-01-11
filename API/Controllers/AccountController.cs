@@ -75,18 +75,18 @@ public class AccountController : ControllerBase
     [HttpGet()]
     public async Task<ActionResult<UserDto>> GetCurrentUser()
     {
-        var user = await  _userManager
-                            .FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
-        
+        var user = await _userManager.Users
+                            .Include(p => p.Photos)
+                            .FirstOrDefaultAsync(u => u.Email == User.FindFirstValue(ClaimTypes.Email));
+                            
         return CreateUserDto(user);
     }
 
     private UserDto CreateUserDto(AppUser user)
     {
-        return new UserDto
-        {
+        return new UserDto {
             Displayname = user.DisplayName,
-            Image = null,
+            Image = user.Photos.FirstOrDefault(u => u.IsMain)?.Url,
             Token = _tokenService.CreatToken(user),
             Username = user.UserName
         };

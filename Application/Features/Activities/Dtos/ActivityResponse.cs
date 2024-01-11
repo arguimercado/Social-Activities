@@ -16,11 +16,10 @@ public class ActivityResponse
     public string City { get; set; }
     public string Venue { get; set; }
     public string HostUsername { get; set; }
-
     public bool IsCancelled { get; set; }
    
     
-    public List<ProfileResponse> Attendees { get; set; } = new();
+    public List<AttendeeResponse> Attendees { get; set; } = new();
 
 }
 

@@ -59,7 +59,8 @@ export default class ActivityStore {
                     
                 })
                 return activity;
-            } catch (error) {
+            } 
+            catch (error) {
                 console.log(error);
                 this.loadingInitial = false;
             }

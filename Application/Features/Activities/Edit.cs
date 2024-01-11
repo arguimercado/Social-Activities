@@ -1,11 +1,5 @@
 
 using Application.Features.Activities.Dtos;
-using AutoMapper;
-using Domain.Activities;
-using Domain.Contracts;
-using FluentResults;
-using FluentValidation;
-using MediatR;
 
 namespace Application.Features.Activities;
 

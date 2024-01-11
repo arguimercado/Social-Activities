@@ -1,11 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Domain.Contracts;
-using FluentResults;
-using MediatR;
-
 namespace Application.Features.Attendees
 {
     public static class RemoveAttendee
