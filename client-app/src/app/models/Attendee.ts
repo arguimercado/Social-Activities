@@ -1,4 +1,4 @@
-export interface IProfile {
+export interface IAttendee {
     userId: string;
     username: string;
     displayname: string;

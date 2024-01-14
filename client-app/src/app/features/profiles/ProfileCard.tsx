@@ -1,16 +1,16 @@
 import { observer } from "mobx-react-lite"
-import { IProfile } from "../../models/IProfile";
+import { IAttendee } from "../../models/Attendee";
 import { Card,CardDescription,Icon,Image } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 
 
 interface Props {
-    profile: IProfile;
+    profile: IAttendee;
 }
 
 const ProfileCard = ({profile}: Props) => {
   return (
-    <Card as={Link} to={`/profiles/${profile.username}`}>
+    <Card as={Link} to={`/profile/${profile.username}`}>
         <Image src={profile.image || '/assets/user.png'} />
         <Card.Content>
             <Card.Header>{profile.displayname}</Card.Header>

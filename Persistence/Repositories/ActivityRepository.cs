@@ -45,6 +45,7 @@ public class ActivityRepository : IActivityRepository
         return await query
                         .Include(x => x.Attendees)
                         .ThenInclude(x => x.AppUser)
+                        .ThenInclude(x => x.Photos)
                         .Where(x => x.Id == Guid.Parse(id))
                         .FirstOrDefaultAsync();
     }

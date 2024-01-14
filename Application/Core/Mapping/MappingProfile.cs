@@ -38,19 +38,7 @@ namespace Application.Core.Mapping
                 .ForMember(a => a.Image, opt => opt.MapFrom(c => c.Photos.FirstOrDefault(o => o.IsMain).Url));
 
 
-            //CreateMap<AppUser, AttendeeResponse>()
-            //    .ForMember(a => a.UserId, opt => opt.MapFrom(c => c.Id))
-            //    .ForMember(a => a.Activities, opt => opt.MapFrom(c => c.Activities.Select(a => new AttendeeResponse
-            //    {
-            //        Id = a.Activity.Id.ToString(),
-            //        Title = a.Activity.Title,
-            //        Category = a.Activity.Category,
-            //        Description = a.Activity.Description,
-            //        City = a.Activity.City,
-            //        Venue = a.Activity.Venue,
-            //    } )))
-            //    .ForMember(a => a.Image, opt => opt.MapFrom(c => c.Photos.FirstOrDefault(o => o.IsMain).Url));
-
+       
         }
     }
 }

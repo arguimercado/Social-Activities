@@ -1,10 +1,10 @@
 import { observer } from "mobx-react-lite";
 import { Link } from "react-router-dom";
 import { Label, List, Segment, Image, Item } from "semantic-ui-react";
-import { IProfile } from "../../../models/IProfile";
+import { IAttendee } from "../../../models/Attendee";
 
 interface Props {
-  attendees: IProfile[];
+  attendees: IAttendee[];
  
 }
 
@@ -45,7 +45,7 @@ const SidebarDetail = ({ attendees }: Props) => {
                 />
                 <Item.Content>
                 <Item.Header as="h3">
-                  <Link to={`/profiles/${attendee.username}`}>
+                  <Link to={`/profile/${attendee.username}`}>
                     {attendee.displayname}
                   </Link>
                 </Item.Header>
