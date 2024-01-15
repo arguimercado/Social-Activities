@@ -3,19 +3,20 @@ import {
   Icon,
   Item,
   Label,
-  List,
-  ListItem,
   Segment,
 } from "semantic-ui-react";
+
 import { IActivity } from "../../../../models/Activity";
-import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import ActivityListItemAttendee from "./ActivityListItemAttendee";
+import { Link } from "react-router-dom";
 
 interface Props {
-  activity: IActivity;
+  activity: IActivity,
+  onViewClick: () => void;
 }
-const ActivityListItem = ({ activity }: Props) => {
+const ActivityListItem = ({ activity,onViewClick }: Props) => {
+
   return (
     <Segment.Group>
       <Segment raised>
@@ -26,7 +27,7 @@ const ActivityListItem = ({ activity }: Props) => {
           <Item>
             <Item.Image style={{marginBottom: '3px'}} size="tiny" circular src={activity.host?.image || "/assets/user.png"} />
             <Item.Content style={{ position: "relative" }}>
-              <Item.Header as={Link} to={`/activities/${activity.id}`}>
+              <Item.Header as={Link} onClick={onViewClick}>
                 {activity.title}
               </Item.Header>
 
@@ -55,9 +56,9 @@ const ActivityListItem = ({ activity }: Props) => {
       </Segment>
       <Segment clearing>
         <Button
-          as={Link}
+          onClick={onViewClick}
           icon="eye"
-          to={`/activities/${activity.id}`}
+          content='View Activity'
           color="teal"
           floated="right"
           basic

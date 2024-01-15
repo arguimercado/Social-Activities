@@ -15,7 +15,11 @@ export default class UserStore {
         return !!this.user;
     }
 
-    
+    setImage = (image: string) => {
+        if(this.user) {
+            this.user.image = image;
+        }
+    }
 
     login = async (creds: UserLogin) => {
         try {
