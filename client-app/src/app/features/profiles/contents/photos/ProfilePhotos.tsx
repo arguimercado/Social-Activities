@@ -1,15 +1,13 @@
 import { Card, Header, Tab, Image, Grid, Button } from "semantic-ui-react";
-import { IPhoto } from "../../models/Profile";
-import { useStore } from "../../stores/store";
+import { IPhoto } from "../../../../models/Profile";
+import { useStore } from "../../../../stores/store";
 import { SyntheticEvent, useState } from "react";
-import PhotoUploadWidget from "../../components/imageUpload/PhotoUploadWidget";
+import PhotoUploadWidget from "./components/PhotoUploadWidget";
 import { observer } from "mobx-react-lite";
 
-interface Props {
-  photos?: IPhoto[] | null;
-}
 
-const ProfilePhotos = ({ photos }: Props) => {
+
+const ProfilePhotos = () => {
   const {
     profileStore: {
       isCurrentUser,

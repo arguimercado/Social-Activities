@@ -20,6 +20,12 @@ public class AppUser : IdentityUser
     [NotMapped]
     public IEnumerable<Photo> DeletedPhotos => _deletedPhotos.ToList();
 
+    public void Update(string displayName, string bio)
+    {
+        DisplayName = displayName;
+        Bio = bio;
+    }
+
     public void AddPhoto(Photo photo)
     {
         if(!Photos.Any(p => p.IsMain))

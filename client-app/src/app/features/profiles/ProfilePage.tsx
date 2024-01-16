@@ -1,6 +1,6 @@
 import { Grid } from "semantic-ui-react";
 import ProfileHeader from "./ProfileHeader";
-import ProfileContent from "./ProfileContent";
+import ProfileContent from "./contents/ProfileContent";
 import { useStore } from "../../stores/store";
 import BusyLoader from "../../components/loading/BusyLoader";
 import { useEffect } from "react";
@@ -29,7 +29,7 @@ const ProfilePage = () => {
         {profile && (
           <>
             <ProfileHeader profile={profile} />
-            <ProfileContent profile={profile} />
+            <ProfileContent  />
           </>
         )
 

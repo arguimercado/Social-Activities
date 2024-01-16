@@ -7,6 +7,9 @@ namespace Persistence.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly ActivityContext _context;
+
+    public DbSet<AppUser> Users => _context.Users;
+
     public UserRepository(IActivityContext context) 
     {
         _context = (ActivityContext)context;

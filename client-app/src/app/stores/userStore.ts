@@ -21,6 +21,10 @@ export default class UserStore {
         }
     }
 
+    setDisplayName = (name: string) => {
+        this.user!.displayname = name;
+    }
+
     login = async (creds: UserLogin) => {
         try {
 

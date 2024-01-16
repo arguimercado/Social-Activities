@@ -74,6 +74,25 @@ export default class ProfileStore {
         }
     }
 
+    updateProfile = async (profile: Partial<IProfile>) => {
+        this.loading = true;
+        try {
+            await agent.Profiles.update(profile);
+            runInAction(() => {
+                store.userStore.setDisplayName(profile.displayname!);
+                this.profile = {...this.profile, ...profile as IProfile};
+            })
+        }
+        catch(error) {
+            console.log(error);
+        }
+        finally {
+            runInAction(() => {
+                this.loading = false;
+            })
+        }
+    }
+
     setMainPhoto = async (photo: IPhoto) => {
         this.loading = true;
         try {
