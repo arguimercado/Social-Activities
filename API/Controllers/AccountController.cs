@@ -17,8 +17,7 @@ public class AccountController : ControllerBase
     private readonly UserManager<AppUser> _userManager;
     private readonly TokenService _tokenService;
 
-    public AccountController(UserManager<AppUser> userManager,TokenService tokenService)
-    {
+    public AccountController(UserManager<AppUser> userManager,TokenService tokenService) {
         _userManager = userManager;
         _tokenService = tokenService;
     }
@@ -72,7 +71,7 @@ public class AccountController : ControllerBase
     }
 
     
-    [HttpGet()]
+    [HttpGet]
     public async Task<ActionResult<UserDto>> GetCurrentUser()
     {
         var user = await _userManager.Users

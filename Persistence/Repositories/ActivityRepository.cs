@@ -7,10 +7,11 @@ namespace Persistence.Repositories;
 public class ActivityRepository : IActivityRepository
 {
     private readonly ActivityContext _context;
+    public DbSet<Activity> Activites => _context.Activites;
 
-    public ActivityRepository(IActivityContext context)
+    public ActivityRepository(ActivityContext context)
     {
-        _context = (ActivityContext)context;
+        _context = context;
     }
 
     public void Create(Activity activity)

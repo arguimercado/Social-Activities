@@ -9,7 +9,7 @@ export default class ActivityStore {
 
    
     activityRegistry = new Map<string,IActivity>();
-    selectedActivity: IActivity | null = null;
+    activity: IActivity | null = null;
     editMode = false;
     submitLoading = false;
     deleteLoading = false;
@@ -20,6 +20,9 @@ export default class ActivityStore {
         makeAutoObservable(this);
     }
 
+    get selectedActivity() {
+        return this.activity;
+    }
 
     get activityByDate() {
         return  Array.from(this.activityRegistry.values()).sort((a,b) => 
@@ -37,7 +40,7 @@ export default class ActivityStore {
     }
 
     get guestActivities() {
-        return this.selectedActivity?.attendees.filter(a => !a.isHost);
+        return this.activity?.attendees.filter(a => !a.isHost);
     }
 
 
@@ -45,7 +48,7 @@ export default class ActivityStore {
 
         let activity = this.activityRegistry.get(id);
         if (activity && !force) {
-            this.selectedActivity = activity;
+            this.activity = activity;
             return activity;
         }
         else {
@@ -54,7 +57,7 @@ export default class ActivityStore {
                 activity = await agent.Activities.details(id);
                 this.setActivity(activity!);
                 runInAction(() => {
-                    this.selectedActivity = activity ?? null;
+                    this.activity = activity ?? null;
                     this.loadingInitial = false;
                     
                 })
@@ -103,7 +106,7 @@ export default class ActivityStore {
             runInAction(() => {
                 this.activityRegistry.set(activity.id,activity)
                 this.editMode = false;
-                this.selectedActivity = { ...activity }
+                this.activity = { ...activity }
                 this.submitLoading = false;
             });
             return activity;
@@ -121,7 +124,7 @@ export default class ActivityStore {
             runInAction(() => {
                 this.activityRegistry.set(activity.id,activity);
                 this.editMode = false;
-                this.selectedActivity = { ...activity };
+                this.activity = { ...activity };
                 this.submitLoading = false;
             });
             return activity;
@@ -154,6 +157,10 @@ export default class ActivityStore {
                 this.loading = false;
             })
         }
+    }
+
+    clearSelectedActivity = () => {
+        this.activity = null;
     }
 
 }

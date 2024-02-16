@@ -1,0 +1,29 @@
+﻿@using WebApp.Models
+
+
+<div class="p-2">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="fs-5">@Activity.Title</h3>
+        </div>
+        <div class="card-body">
+            <div class="d-flex flex-row gap-2 mb-4 ">
+                <span class="fs-7">Date: @Activity.Date.ToString("d MMM yyy hh:ss tt")</span>
+                <span class="fs-7">Location: @Activity.City @Activity.Venue </span>
+            </div>
+            <p>@Activity.Description</p>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .fs-7 {
+        font-size: 0.9rem;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public Activity Activity { get; set; }
+}

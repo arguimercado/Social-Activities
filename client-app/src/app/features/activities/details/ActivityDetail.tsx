@@ -13,13 +13,15 @@ import SidebarDetail from "./SidebarDetail";
 
 const ActivityDetail = () => {
 
-  const {activityStore : {selectedActivity, loadActivity,loadingInitial}} = useStore();
+  const {activityStore : {selectedActivity, loadActivity,loadingInitial,clearSelectedActivity}} = useStore();
   
   const {id} = useParams();
 
   useEffect(() => {
     if(id) loadActivity(id)
-  },[id,loadActivity])
+
+    return () => clearSelectedActivity();
+  },[id,loadActivity,clearSelectedActivity])
 
   function handleRefresh(id: string) {
     loadActivity(id,true);
@@ -32,7 +34,7 @@ const ActivityDetail = () => {
     <Grid.Column width={10}>
       <HeaderDetail activity={selectedActivity} onRefresh={handleRefresh}  />
       <InfoDetail activity={selectedActivity} />
-      <ChatDetail />
+      <ChatDetail activityId={selectedActivity.id} />
     </Grid.Column>
     <Grid.Column width={6}>
       <SidebarDetail attendees={selectedActivity.attendees!}/>

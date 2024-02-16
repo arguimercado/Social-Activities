@@ -1,8 +1,9 @@
 using Application.Features.Activities.Dtos;
+using Application.Features.Comments.DTO;
 using Application.Features.Photos.Dto;
 using Application.Features.Profiles.Dto;
-using AutoMapper;
 using Domain.Activities;
+using Domain.Comments;
 using Domain.Photos;
 using Domain.Users;
 
@@ -20,7 +21,6 @@ namespace Application.Core.Mapping
                 .ForMember(a => a.IsCancelled, opt => opt.MapFrom(c => c.Cancel.IsCancelled))
                 .ForMember(a => a.HostUsername, opt => opt.MapFrom(c => c.Attendees.FirstOrDefault(x => x.IsHost).AppUser.UserName));
 
-
             CreateMap<ActivityAttendee, AttendeeResponse>()
                 .ForMember(a => a.UserId, opt => opt.MapFrom(c => c.AppUser.Id))
                 .ForMember(a => a.Username, opt => opt.MapFrom(c => c.AppUser.UserName))
@@ -30,7 +30,6 @@ namespace Application.Core.Mapping
                 .ForMember(a => a.DateCancelled, opt => opt.MapFrom(c => c.Cancel.Date))
                 .ForMember(a => a.Image, opt => opt.MapFrom(c => c.AppUser.Photos.FirstOrDefault(o => o.IsMain).Url));
 
-
             CreateMap<Photo, PhotoResponse>();
 
             CreateMap<AppUser,ProfileResponse>()
@@ -38,7 +37,11 @@ namespace Application.Core.Mapping
                 .ForMember(a => a.Image, opt => opt.MapFrom(c => c.Photos.FirstOrDefault(o => o.IsMain).Url));
 
 
-       
+            CreateMap<Comment,CommentResponse>()
+                .ForMember(a => a.UserName, opt => opt.MapFrom(c => c.Author.UserName))
+                .ForMember(a => a.Displayname, opt => opt.MapFrom(c => c.Author.DisplayName))
+                .ForMember(a => a.Image, opt => opt.MapFrom(c => c.Author.Photos.FirstOrDefault(o => o.IsMain).Url));
+
         }
     }
 }

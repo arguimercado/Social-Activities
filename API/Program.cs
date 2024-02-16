@@ -1,5 +1,6 @@
 using API.Extensions;
 using API.Middleware;
+using API.SignalR;
 using Application;
 using Application.Core.Mapping;
 using Domain.Users;
@@ -35,6 +36,7 @@ builder.Services.AddCors(opt => {
         policy
             .AllowAnyHeader()
             .AllowAnyMethod()
+            .AllowCredentials()
             .WithOrigins("http://localhost:5173");
     });
 });
@@ -57,6 +59,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/chat");
 
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;

@@ -8,9 +8,9 @@ public class PhotoRespository : IPhotoRepository
 {
     private readonly ActivityContext _context;
 
-    public PhotoRespository(IActivityContext context)
+    public PhotoRespository(ActivityContext context)
     {
-        _context = (ActivityContext)context;
+        _context = context;
     }
     public void Add(Photo photo)
     {

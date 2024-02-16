@@ -14,6 +14,5 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
         
         builder.ComplexProperty<CancelationValueObject>(m => m.Cancel)
                 .IsRequired();
-            
     }
 }

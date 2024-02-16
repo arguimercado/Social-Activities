@@ -126,6 +126,35 @@ namespace Persistence.Migrations
                     b.ToTable("Invitation");
                 });
 
+            modelBuilder.Entity("Domain.Comments.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid?>("ActivityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AuthorId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Body")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId");
+
+                    b.HasIndex("AuthorId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("Domain.Photos.Photo", b =>
                 {
                     b.Property<string>("Id")
@@ -381,6 +410,22 @@ namespace Persistence.Migrations
                     b.Navigation("Activity");
                 });
 
+            modelBuilder.Entity("Domain.Comments.Comment", b =>
+                {
+                    b.HasOne("Domain.Activities.Activity", "Activity")
+                        .WithMany("Comments")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Domain.Users.AppUser", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId");
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("Author");
+                });
+
             modelBuilder.Entity("Domain.Photos.Photo", b =>
                 {
                     b.HasOne("Domain.Users.AppUser", "AppUser")
@@ -444,6 +489,8 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Activities.Activity", b =>
                 {
                     b.Navigation("Attendees");
+
+                    b.Navigation("Comments");
 
                     b.Navigation("Invitations");
                 });

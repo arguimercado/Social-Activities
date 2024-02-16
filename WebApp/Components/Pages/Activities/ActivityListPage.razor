@@ -1,0 +1,42 @@
+﻿
+@page "/activities"
+
+@using WebApp.Models
+@inject IActivityService ActivityService;
+@rendermode InteractiveServer
+
+
+<div class="row">
+    <div class="col-8">
+        @if (_activities is not null)
+        {
+            @foreach (var activity in _activities)
+            {
+                <ActivityCard Activity="activity" />
+            }
+        }
+    </div>
+    <div class="col-4">
+
+    </div>
+</div>
+
+
+
+@code {
+
+    IEnumerable<Activity> _activities;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            _activities = await ActivityService.GetActivities();
+            StateHasChanged();
+
+        }
+    }
+
+
+
+}

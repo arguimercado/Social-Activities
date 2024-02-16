@@ -1,9 +1,12 @@
 using Domain.Activities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Domain.Contracts;
 
 public interface IActivityRepository
 {
+
+    DbSet<Activity> Activites { get;  }
 
     void Create(Activity activity);
 

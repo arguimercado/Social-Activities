@@ -35,6 +35,7 @@ public static class List
         public async Task<Result<IEnumerable<ActivityResponse>>> Handle(Query request, CancellationToken cancellationToken)
         {
             try {
+                
                 var data = await _repository.GetAll();
                 var responses = _mapper.Map<IEnumerable<ActivityResponse>>(data);
                 

@@ -10,10 +10,11 @@ public class UserRepository : IUserRepository
 
     public DbSet<AppUser> Users => _context.Users;
 
-    public UserRepository(IActivityContext context) 
+    public UserRepository(ActivityContext context) 
     {
-        _context = (ActivityContext)context;
+        _context = context;
     }
+    
     public async Task<AppUser> FindByUsername(string username, bool asTracking = false)
     {
         var query = asTracking ? _context.Users.AsTracking() : _context.Users.AsNoTracking();

@@ -1,4 +1,5 @@
 using Domain.Activities;
+using Domain.Comments;
 using Domain.Contracts;
 using Domain.Photos;
 using Domain.Users;
@@ -8,9 +9,8 @@ using Persistence.Configurations;
 
 namespace Persistence;
 
-public class ActivityContext : IdentityDbContext<AppUser>, IActivityContext
+public class ActivityContext : IdentityDbContext<AppUser>
 {
-
     public ActivityContext(DbContextOptions<ActivityContext> options) : base(options)
     {
         
@@ -18,8 +18,8 @@ public class ActivityContext : IdentityDbContext<AppUser>, IActivityContext
 
     public DbSet<Activity> Activites { get; set; }
     public DbSet<ActivityAttendee> ActivityAttendees { get; set; }
-
     public DbSet<Photo> Photos { get; set; }
+    public DbSet<Comment> Comments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -28,5 +28,6 @@ public class ActivityContext : IdentityDbContext<AppUser>, IActivityContext
         builder.ApplyConfiguration(new ActivityConfiguration());
         builder.ApplyConfiguration(new ActivityAttendeeConfiguration());
         builder.ApplyConfiguration(new AppUserConfiguration());
+        builder.ApplyConfiguration(new CommentConfiguration());
     }
 }

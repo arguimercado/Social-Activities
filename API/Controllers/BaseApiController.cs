@@ -18,16 +18,15 @@ public class BaseApiController : ControllerBase
         if(result is null) {
             return NotFound();
         }
-        else if(result.IsSuccess && result.Value is not null) {
-            return Ok(result.Value);
-        }
         else if(result.IsSuccess && result.Value is null) {
             return NotFound();
+        }
+        else if(result.IsSuccess && result.Value is not null) {
+            return Ok(result.Value);
         }
         else {
             return BadRequest(result.Errors);
         }
-       
     }
 
     

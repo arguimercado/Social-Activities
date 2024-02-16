@@ -1,3 +1,4 @@
+using Domain.Comments;
 using Domain.Users;
 
 namespace Domain.Activities;
@@ -25,7 +26,15 @@ public class Activity
                                               string creator) => new(id, title,date,description,category,city,venue,creator);
     
 
-    public static Activity CreateWithAttendee(string title, DateTime date, string description, string category, string city, string venue,string creator,AppUser user,bool isHost) {
+    public static Activity CreateWithAttendee(string title,
+                                              DateTime date,
+                                              string description,
+                                              string category,
+                                              string city,
+                                              string venue,
+                                              string creator,
+                                              AppUser user,
+                                              bool isHost) {
         
         var activity = new Activity(Guid.NewGuid(), title,date,description,category,city,venue,creator);
         activity.AddAttendee(user,isHost);
@@ -65,7 +74,6 @@ public class Activity
     public string Venue { get; set; }
     public string Creator { get; set; }
     public DateTime CreatedAt { get; private set; }
-
     public CancelationValueObject Cancel { get; set; }
 
     private List<Invitation> _invitations = new List<Invitation>();
@@ -73,11 +81,22 @@ public class Activity
 
     public ICollection<ActivityAttendee> Attendees { get; set; } = new List<ActivityAttendee>();
 
+    private List<Comment> _comments = new List<Comment>();
+    public IEnumerable<Comment> Comments => _comments.ToList();
+
+    public void AddComment(string body, AppUser author) {
+        var comment = new Comment(body,author,this);
+        _comments.Add(comment);
+    }
 
     public bool IsHost(string username) => Attendees.Any(x => x.IsHost && x.AppUser.UserName == username);
 
     public void CancelActivity() {
         Cancel = new CancelationValueObject(true);
+    }
+
+    public bool IsCreator(string userName) {
+        return Creator == userName;
     }
 
     public void RestoreActivity() {
@@ -93,6 +112,7 @@ public class Activity
     }
 
     public void RemoveAttendeeInActivity(AppUser user) {
+
         var attendee = this.Attendees.FirstOrDefault(x => x.AppUserId == user.Id);
         if(attendee != null) {
             this.Attendees.Remove(attendee);

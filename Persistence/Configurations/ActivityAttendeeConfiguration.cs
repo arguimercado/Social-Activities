@@ -9,6 +9,7 @@ namespace Persistence.Configurations
         public void Configure(EntityTypeBuilder<ActivityAttendee> builder)
         {
             builder.HasKey(x => new {x.ActivityId,x.AppUserId});
+            
             builder.HasOne(u => u.AppUser)
                 .WithMany(a => a.Activities)
                 .HasForeignKey(a => a.AppUserId);

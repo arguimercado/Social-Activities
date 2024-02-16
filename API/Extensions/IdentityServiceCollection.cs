@@ -16,7 +16,6 @@ public static class IdentityServiceCollection
         services.AddIdentityCore<AppUser>(opt => {
             opt.Password.RequireNonAlphanumeric = false;
             opt.User.RequireUniqueEmail = true;
-            
         })
         .AddEntityFrameworkStores<ActivityContext>();
 
@@ -29,6 +28,16 @@ public static class IdentityServiceCollection
                 ValidateIssuer = false,
                 ValidateAudience = false
             };
+            opt.Events = new JwtBearerEvents {
+                OnMessageReceived = context => {
+                    var accessToken = context.Request.Query["access_token"];
+                    var path = context.HttpContext.Request.Path;
+                    if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat")) {
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         services.AddAuthorization(opt => {
@@ -36,8 +45,10 @@ public static class IdentityServiceCollection
                 policy.Requirements.Add(new HostRequirement());
             });
         });
+        services.AddSignalR();
         services.AddTransient<IAuthorizationHandler,HostRequirementHandler>();
         services.AddScoped<TokenService>();
+    
         services.Configure<TokenOptions>(configuration.GetSection("Token"));
 
         return services;
