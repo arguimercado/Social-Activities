@@ -34,7 +34,9 @@ namespace Application.Core.Mapping
 
             CreateMap<AppUser,ProfileResponse>()
                 .ForMember(a => a.UserId, opt => opt.MapFrom(c => c.Id))
-                .ForMember(a => a.Image, opt => opt.MapFrom(c => c.Photos.FirstOrDefault(o => o.IsMain).Url));
+                .ForMember(a => a.Image, opt => opt.MapFrom(c => c.Photos.FirstOrDefault(o => o.IsMain).Url))
+                .ForMember(a => a.FollowersCount, o => o.MapFrom(s => s.Followers.Count))
+                .ForMember(a => a.FollowingsCount, o => o.MapFrom(s => s.Followings.Count));
 
 
             CreateMap<Comment,CommentResponse>()
