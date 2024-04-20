@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { router } from "../router/Route";
 import { store } from "../stores/store";
 
-axios.defaults.baseURL = "http://localhost:5000/api";
+axios.defaults.baseURL =  "http://localhost:5000/api";
 
 
 const sleep = (delay: number) => {
