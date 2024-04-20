@@ -21,6 +21,8 @@ public class ActivityContext : IdentityDbContext<AppUser>
     public DbSet<Photo> Photos { get; set; }
     public DbSet<Comment> Comments { get; set; }
 
+    public DbSet<UserFollowing> UserFollowings {get;set;}
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -29,5 +31,6 @@ public class ActivityContext : IdentityDbContext<AppUser>
         builder.ApplyConfiguration(new ActivityAttendeeConfiguration());
         builder.ApplyConfiguration(new AppUserConfiguration());
         builder.ApplyConfiguration(new CommentConfiguration());
+        builder.ApplyConfiguration(new UserFollowingConfiguration());
     }
 }

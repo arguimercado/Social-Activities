@@ -11,8 +11,12 @@ public class AppUser : IdentityUser
     public string Bio { get; set; }
 
     public ICollection<ActivityAttendee> Activities { get; set; } = new List<ActivityAttendee>();
-
     
+    public ICollection<UserFollowing> Followings { get; set; }
+    public ICollection<UserFollowing> Followers { get; set; }
+
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
     public ICollection<Photo> Photos { get; set; } = new HashSet<Photo>();
 
     private List<Photo> _deletedPhotos = new List<Photo>();

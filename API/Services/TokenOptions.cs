@@ -4,5 +4,6 @@ namespace API.Services
     {
        
         public string Key { get; set; }
+        public int Expiration { get; set; }
     }
 }
