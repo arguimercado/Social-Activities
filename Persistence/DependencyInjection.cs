@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<IActivityRepository,ActivityRepository>();
         services.AddScoped<IUserRepository,UserRepository>();
         services.AddScoped<IPhotoRepository,PhotoRespository>();
+        services.AddScoped<IUserFollowingRepository,UserFollowingRepository>();
         services.AddScoped<IPhotoAccessor,PhotoAccessor>();
 
         services.Configure<CloudPhotoSettings>(configuration.GetSection("Cloudinary"));

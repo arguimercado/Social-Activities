@@ -81,6 +81,21 @@ public class AccountController : ControllerBase
         return CreateUserDto(user);
     }
 
+    public async Task SetRefreshToken(AppUser user) {
+
+        var refreshToken = _tokenService.GenerateRefreshToken();
+        user.RefreshTokens.Add(refreshToken);
+
+        await _userManager.UpdateAsync(user);
+
+        var cookieOptions = new CookieOptions {
+            HttpOnly = true,
+            Expires = DateTime.UtcNow.AddDays(7)
+        };
+
+        Response.Cookies.Append("refreshToken",refreshToken.Token,cookieOptions);
+    }
+
     private UserDto CreateUserDto(AppUser user)
     {
         return new UserDto {
