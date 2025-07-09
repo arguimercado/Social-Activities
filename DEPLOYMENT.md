@@ -1,0 +1,645 @@
+# Deployment Guide
+
+This guide provides instructions for deploying the Social Activities application to various environments.
+
+## 🏗️ Deployment Options
+
+### 1. Azure App Service (Recommended)
+### 2. Docker Containers
+### 3. IIS (Windows Server)
+### 4. Linux Server with Nginx
+
+## 🔧 Pre-deployment Checklist
+
+### Environment Configuration
+- [ ] Database connection string configured
+- [ ] JWT secret key set
+- [ ] CORS origins configured
+- [ ] SSL certificate ready
+- [ ] Environment variables set
+
+### Security
+- [ ] Sensitive data removed from code
+- [ ] Connection strings secured
+- [ ] HTTPS enforced
+- [ ] CORS properly configured
+- [ ] Rate limiting configured (if needed)
+
+### Performance
+- [ ] Database indexed
+- [ ] Static files optimized
+- [ ] Caching configured
+- [ ] Compression enabled
+
+## 🚀 Azure App Service Deployment
+
+### Prerequisites
+- Azure subscription
+- Azure CLI installed
+- SQL Server database (Azure SQL or on-premises)
+
+### Step 1: Create Azure Resources
+
+```bash
+# Login to Azure
+az login
+
+# Create resource group
+az group create --name social-activities-rg --location "East US"
+
+# Create App Service plan
+az appservice plan create \
+  --name social-activities-plan \
+  --resource-group social-activities-rg \
+  --sku B1 \
+  --is-linux
+
+# Create App Service for API
+az webapp create \
+  --name social-activities-api \
+  --resource-group social-activities-rg \
+  --plan social-activities-plan \
+  --runtime "DOTNETCORE|8.0"
+
+# Create App Service for Frontend
+az webapp create \
+  --name social-activities-web \
+  --resource-group social-activities-rg \
+  --plan social-activities-plan \
+  --runtime "NODE|18-lts"
+```
+
+### Step 2: Configure Database
+
+```bash
+# Create Azure SQL Server
+az sql server create \
+  --name social-activities-sql \
+  --resource-group social-activities-rg \
+  --location "East US" \
+  --admin-user sqladmin \
+  --admin-password "YourStrongPassword123!"
+
+# Create database
+az sql db create \
+  --resource-group social-activities-rg \
+  --server social-activities-sql \
+  --name social-activities-db \
+  --service-objective S0
+
+# Configure firewall
+az sql server firewall-rule create \
+  --resource-group social-activities-rg \
+  --server social-activities-sql \
+  --name AllowAzureServices \
+  --start-ip-address 0.0.0.0 \
+  --end-ip-address 0.0.0.0
+```
+
+### Step 3: Deploy Backend API
+
+1. **Update appsettings.json**
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=social-activities-sql.database.windows.net;Database=social-activities-db;User Id=sqladmin;Password=YourStrongPassword123!;TrustServerCertificate=True;"
+     },
+     "Token": {
+       "Key": "YourProductionSecretKey_MustBe_VeryLong_AndSecure",
+       "Expiration": 7
+     },
+     "Logging": {
+       "LogLevel": {
+         "Default": "Information"
+       }
+     },
+     "AllowedHosts": "*"
+   }
+   ```
+
+2. **Publish the application**
+   ```bash
+   # Build and publish
+   dotnet publish -c Release -o ./publish
+   
+   # Create deployment package
+   cd publish
+   zip -r ../deploy.zip .
+   ```
+
+3. **Deploy to Azure**
+   ```bash
+   # Deploy using Azure CLI
+   az webapp deployment source config-zip \
+     --resource-group social-activities-rg \
+     --name social-activities-api \
+     --src deploy.zip
+   ```
+
+4. **Configure App Settings**
+   ```bash
+   # Set connection string
+   az webapp config connection-string set \
+     --resource-group social-activities-rg \
+     --name social-activities-api \
+     --connection-string-type SQLServer \
+     --settings DefaultConnection="Server=social-activities-sql.database.windows.net;Database=social-activities-db;User Id=sqladmin;Password=YourStrongPassword123!;TrustServerCertificate=True;"
+   
+   # Set app settings
+   az webapp config appsettings set \
+     --resource-group social-activities-rg \
+     --name social-activities-api \
+     --settings Token__Key="YourProductionSecretKey_MustBe_VeryLong_AndSecure" \
+                Token__Expiration="7"
+   ```
+
+### Step 4: Deploy Frontend
+
+1. **Update environment configuration**
+   ```bash
+   # Create .env.production in client-app
+   echo "VITE_API_URL=https://social-activities-api.azurewebsites.net/api" > .env.production
+   ```
+
+2. **Build and deploy**
+   ```bash
+   cd client-app
+   npm run build
+   
+   # Deploy to Azure
+   cd dist
+   zip -r ../client-deploy.zip .
+   
+   az webapp deployment source config-zip \
+     --resource-group social-activities-rg \
+     --name social-activities-web \
+     --src client-deploy.zip
+   ```
+
+### Step 5: Configure HTTPS and Custom Domain
+
+```bash
+# Enable HTTPS
+az webapp update \
+  --resource-group social-activities-rg \
+  --name social-activities-api \
+  --https-only true
+
+az webapp update \
+  --resource-group social-activities-rg \
+  --name social-activities-web \
+  --https-only true
+
+# Add custom domain (optional)
+az webapp config hostname add \
+  --resource-group social-activities-rg \
+  --webapp-name social-activities-api \
+  --hostname api.yourdomain.com
+```
+
+## 🐳 Docker Deployment
+
+### Step 1: Create Dockerfiles
+
+**Backend Dockerfile** (`API/Dockerfile`):
+```dockerfile
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["API/API.csproj", "API/"]
+COPY ["Application/Application.csproj", "Application/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["Persistence/Persistence.csproj", "Persistence/"]
+RUN dotnet restore "API/API.csproj"
+COPY . .
+WORKDIR "/src/API"
+RUN dotnet build "API.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "API.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "API.dll"]
+```
+
+**Frontend Dockerfile** (`client-app/Dockerfile`):
+```dockerfile
+FROM node:18-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+**Nginx Configuration** (`client-app/nginx.conf`):
+```nginx
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    server {
+        listen 80;
+        server_name localhost;
+        root /usr/share/nginx/html;
+        index index.html;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        location /api {
+            proxy_pass http://api:80;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+}
+```
+
+### Step 2: Docker Compose
+
+**docker-compose.yml**:
+```yaml
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      SA_PASSWORD: "YourStrongPassword123!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+
+  api:
+    build:
+      context: .
+      dockerfile: API/Dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=db;Database=ActivityDb;User Id=sa;Password=YourStrongPassword123!;TrustServerCertificate=True;
+      - Token__Key=YourProductionSecretKey_MustBe_VeryLong_AndSecure
+      - Token__Expiration=7
+
+  web:
+    build:
+      context: client-app
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+volumes:
+  sqldata:
+```
+
+### Step 3: Deploy with Docker Compose
+
+```bash
+# Build and run
+docker-compose up --build -d
+
+# Check status
+docker-compose ps
+
+# View logs
+docker-compose logs api
+docker-compose logs web
+
+# Stop services
+docker-compose down
+```
+
+## 🖥️ IIS Deployment (Windows Server)
+
+### Prerequisites
+- Windows Server with IIS installed
+- .NET 8 Runtime installed
+- SQL Server available
+
+### Step 1: Prepare Application
+
+1. **Publish application**
+   ```bash
+   dotnet publish -c Release -o C:\inetpub\wwwroot\social-activities-api
+   ```
+
+2. **Update web.config**
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <configuration>
+     <system.webServer>
+       <handlers>
+         <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
+       </handlers>
+       <aspNetCore processPath="dotnet" arguments=".\API.dll" stdoutLogEnabled="false" stdoutLogFile=".\logs\stdout" />
+     </system.webServer>
+   </configuration>
+   ```
+
+### Step 2: Configure IIS
+
+1. **Create Application Pool**
+   - Name: SocialActivitiesPool
+   - .NET CLR Version: No Managed Code
+   - Managed Pipeline Mode: Integrated
+
+2. **Create Website**
+   - Site Name: Social Activities API
+   - Physical Path: C:\inetpub\wwwroot\social-activities-api
+   - Port: 80 (or 443 for HTTPS)
+   - Application Pool: SocialActivitiesPool
+
+### Step 3: Configure HTTPS
+
+1. **Install SSL Certificate**
+2. **Add HTTPS binding**
+3. **Redirect HTTP to HTTPS**
+
+## 🐧 Linux Server Deployment
+
+### Prerequisites
+- Ubuntu/CentOS server
+- .NET 8 Runtime installed
+- Nginx installed
+- SQL Server or PostgreSQL
+
+### Step 1: Install Prerequisites
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install .NET 8
+wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo apt update
+sudo apt install -y aspnetcore-runtime-8.0
+
+# Install Nginx
+sudo apt install nginx -y
+
+# Install Node.js (for frontend)
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+### Step 2: Deploy Application
+
+```bash
+# Create application directory
+sudo mkdir -p /var/www/social-activities
+
+# Copy published files
+sudo cp -r /path/to/published/files/* /var/www/social-activities/
+
+# Set permissions
+sudo chown -R www-data:www-data /var/www/social-activities
+sudo chmod -R 755 /var/www/social-activities
+```
+
+### Step 3: Configure Systemd Service
+
+**Create service file** (`/etc/systemd/system/social-activities.service`):
+```ini
+[Unit]
+Description=Social Activities API
+After=network.target
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/dotnet /var/www/social-activities/API.dll
+Restart=always
+RestartSec=10
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://localhost:5000
+WorkingDirectory=/var/www/social-activities
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Enable and start service**:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable social-activities
+sudo systemctl start social-activities
+sudo systemctl status social-activities
+```
+
+### Step 4: Configure Nginx
+
+**Create Nginx configuration** (`/etc/nginx/sites-available/social-activities`):
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com;
+    
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection keep-alive;
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+**Enable site**:
+```bash
+sudo ln -s /etc/nginx/sites-available/social-activities /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Step 5: Configure SSL with Let's Encrypt
+
+```bash
+# Install Certbot
+sudo apt install certbot python3-certbot-nginx -y
+
+# Get SSL certificate
+sudo certbot --nginx -d yourdomain.com
+
+# Auto-renewal
+sudo systemctl enable certbot.timer
+```
+
+## 🔐 Security Considerations
+
+### SSL/TLS Configuration
+- Use strong SSL certificates
+- Configure proper cipher suites
+- Enable HSTS headers
+- Disable weak protocols
+
+### Database Security
+- Use connection string encryption
+- Enable database auditing
+- Regular security updates
+- Backup encryption
+
+### Application Security
+- Secure JWT secret keys
+- Configure CORS properly
+- Enable rate limiting
+- Regular dependency updates
+
+## 📊 Monitoring and Logging
+
+### Application Insights (Azure)
+```csharp
+// Add to Program.cs
+builder.Services.AddApplicationInsightsTelemetry();
+```
+
+### Logging Configuration
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  }
+}
+```
+
+### Health Checks
+```csharp
+// Add to Program.cs
+builder.Services.AddHealthChecks()
+    .AddDbContext<ActivityContext>()
+    .AddCheck("api", () => HealthCheckResult.Healthy());
+
+app.MapHealthChecks("/health");
+```
+
+## 🔄 CI/CD Pipeline
+
+### GitHub Actions Example
+
+**.github/workflows/deploy.yml**:
+```yaml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Build backend
+      run: |
+        dotnet restore
+        dotnet build --configuration Release
+        dotnet publish -c Release -o ./publish
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Build frontend
+      run: |
+        cd client-app
+        npm ci
+        npm run build
+        
+    - name: Deploy to Azure
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'social-activities-api'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./publish
+```
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Issues**
+   - Check connection string
+   - Verify firewall rules
+   - Test database connectivity
+
+2. **CORS Issues**
+   - Verify allowed origins
+   - Check preflight requests
+   - Update CORS configuration
+
+3. **SSL Certificate Issues**
+   - Check certificate validity
+   - Verify certificate chain
+   - Update certificate bindings
+
+4. **Performance Issues**
+   - Check database indexes
+   - Monitor memory usage
+   - Optimize queries
+
+### Log Analysis
+```bash
+# View application logs
+tail -f /var/log/social-activities/app.log
+
+# Check system logs
+journalctl -u social-activities -f
+
+# Monitor resource usage
+top
+df -h
+```
+
+## 📋 Post-Deployment Checklist
+
+- [ ] Application loads successfully
+- [ ] Database connectivity verified
+- [ ] Authentication working
+- [ ] API endpoints responding
+- [ ] Frontend assets loading
+- [ ] SSL certificate valid
+- [ ] Monitoring configured
+- [ ] Backup strategy implemented
+- [ ] Health checks passing
+- [ ] Performance baseline established
+
+This deployment guide provides comprehensive instructions for various deployment scenarios. Choose the option that best fits your infrastructure and requirements.
